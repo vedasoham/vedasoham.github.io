@@ -1,10 +1,13 @@
 /* General Styling */
-body {
+html, body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
+    padding: 0;
+    width: 100%;
+    max-width: 100%;
     line-height: 1.6;
-    color: #333;
-    background-color: #f4f4f4;
+    color: #e0e0e0;
+    background-color: #121212;
 }
 
 /* Professional Navigation */
@@ -24,6 +27,7 @@ nav a { color: #fff; text-decoration: none; font-weight: bold; }
     background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('lab-bg.jpg');
     background-size: cover;
     height: 400px;
+    width: 100%;
     color: #fff;
     display: flex;
     flex-direction: column;
@@ -32,6 +36,146 @@ nav a { color: #fff; text-decoration: none; font-weight: bold; }
     text-align: center;
 }
 
+/* Ensure Hero sub-heading is white for contrast against Vanta background */
+#hero h2 {
+    color: whitesmoke;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
 /* Sections */
-section { padding: 2rem; max-width: 800px; margin: auto; }
-h2 { color: #2c3e50; border-bottom: 2px solid #2c3e50; padding-bottom: 10px; }
+section { padding: 2rem; max-width: 100%; margin: auto; text-align: justify; }
+h2 { color: #90caf9; border-bottom: 2px solid #90caf9; padding-bottom: 10px; }
+
+/* Buttons */
+.cta-buttons { margin-top: 1.5rem; }
+.btn {
+    display: inline-block;
+    background-color: #90caf9;
+    color: #121212;
+    padding: 0.75rem 1.5rem;
+    margin: 0 0.5rem;
+    border-radius: 4px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+.btn:hover { background-color: #fff; }
+
+/* Skills Grid */
+.skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+/* Images */
+.about-container {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+.profile-pic {
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #90caf9;
+    flex-shrink: 0;
+}
+.project-img {
+    width: 100%;
+    max-height: 250px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    border: 1px solid #333;
+}
+
+@media (max-width: 768px) {
+    .about-container {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+
+/* Timeline Graphic */
+.timeline {
+    position: relative;
+    border-left: 4px solid #90caf9;
+    margin-left: 1rem;
+    padding-left: 2rem;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+/* Timeline Dot */
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -2.6rem; /* Aligns dot with the border line */
+    top: 0;
+    width: 16px;
+    height: 16px;
+    background: #121212;
+    border: 4px solid #90caf9;
+    border-radius: 50%;
+    z-index: 1;
+}
+
+.timeline-year {
+    display: inline-block;
+    background-color: #90caf9;
+    color: #121212;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Accordion Styling */
+details {
+    background-color: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+summary {
+    padding: 1rem;
+    cursor: pointer;
+    font-weight: bold;
+    background-color: #2c3e50;
+    list-style: none; /* Removes default triangle */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+summary::-webkit-details-marker {
+    display: none; /* Hides marker in Chrome/Safari */
+}
+
+summary::after {
+    content: '+';
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+details[open] summary::after {
+    content: '-';
+}
+
+.details-content {
+    padding: 1rem;
+    border-top: 1px solid #333;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
