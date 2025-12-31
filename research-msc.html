@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MSc Dissertation | Soham Bhatt</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* Feature B: QS Bio-Monitor Styles */
+        .qs-demo-container {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 15px;
+            text-align: center;
+            margin: 2rem 0;
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+        }
+        .qs-monitor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 10px;
+        }
+        .monitor-label { font-family: 'Orbitron', sans-serif; color: #94a3b8; font-size: 0.8rem; letter-spacing: 1px; }
+        .monitor-status { font-family: 'Orbitron', sans-serif; font-weight: bold; font-size: 1rem; }
+        .monitor-status.danger { color: #90f9dd; text-shadow: 0 0 10px #90f9dd; }
+        .monitor-status.safe { color: #fff; opacity: 0.5; }
+
+        .petri-dish {
+            width: 220px;
+            height: 220px;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.05), rgba(0,0,0,0.8));
+            border-radius: 50%;
+            border: 6px solid rgba(255,255,255,0.1);
+            margin: 0 auto 10px;
+            position: relative;
+            box-shadow: inset 0 0 20px #000;
+            transition: all 0.8s ease;
+            overflow: hidden;
+        }
+        .petri-dish.toxic {
+            box-shadow: 0 0 50px rgba(144, 249, 221, 0.2), inset 0 0 30px rgba(144, 249, 221, 0.1);
+            border-color: rgba(144, 249, 221, 0.3);
+        }
+        .petri-dish.toxic::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle, rgba(144, 249, 221, 0.4) 0%, transparent 70%);
+            animation: pulseGlow 3s infinite;
+        }
+        @keyframes pulseGlow { 0%, 100% { opacity: 0.5; } 50% { opacity: 0.8; } }
+
+        .bacterium {
+            position: absolute;
+            width: 35px;
+            height: 15px;
+            background: #555;
+            border-radius: 20px;
+            top: 48%;
+            left: 45%;
+            transition: all 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 2;
+        }
+        .petri-dish.toxic .bacterium {
+            background: #90f9dd;
+            box-shadow: 0 0 8px #90f9dd;
+        }
+
+        .qs-btn {
+            background: transparent;
+            border: 1px solid #90f9dd;
+            color: #90f9dd;
+            padding: 10px 20px;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .qs-btn:hover { background: rgba(144, 249, 221, 0.1); box-shadow: 0 0 15px rgba(144, 249, 221, 0.3); }
+        .qs-btn.active { border-color: #fff; color: #fff; }
+
+        /* Kitchen Lab Styles */
+        .kitchen-lab-container {
+            background: #0f151a;
+            border: 1px solid #0f151a;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        .lab-bench {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .lab-section {
+            flex: 1;
+            min-width: 200px;
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #444;
+        }
+        .lab-section h4 {
+            color: #90caf9;
+            margin-top: 0;
+            border-bottom: 1px solid #555;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            font-family: 'Rajdhani', sans-serif;
+        }
+        
+        /* Jars */
+        .jars-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .jar-item {
+            cursor: pointer;
+            padding: 10px;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            transition: all 0.3s;
+            background: rgba(0,0,0,0.2);
+            color: #ddd;
+        }
+        .jar-item:hover { background: rgba(255,255,255,0.1); }
+        .jar-item.selected {
+            border-color: #90caf9;
+            background: rgba(144, 202, 249, 0.1);
+            box-shadow: 0 0 10px rgba(144, 202, 249, 0.3);
+        }
+
+        /* Test Tube */
+        .test-tube-rack {
+            height: 120px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .test-tube {
+            width: 30px;
+            height: 100px;
+            border: 2px solid #aaa;
+            border-top: none;
+            border-radius: 0 0 15px 15px;
+            position: relative;
+            overflow: hidden;
+            background: rgba(255,255,255,0.05);
+            transition: transform 0.5s;
+        }
+        .tube-liquid {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 0%; /* Starts empty */
+            transition: height 1s ease, background-color 0.5s;
+        }
+        
+        /* Animations */
+        @keyframes shake {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(15deg); }
+            50% { transform: rotate(0deg); }
+            75% { transform: rotate(-15deg); }
+            100% { transform: rotate(0deg); }
+        }
+        .shaking { animation: shake 0.2s infinite; }
+
+        /* Controls */
+        .lab-action-btn {
+            display: block;
+            width: 100%;
+            margin-bottom: 8px;
+            padding: 8px;
+            background: #2c3e50;
+            color: #ccc;
+            border: 1px solid #555;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 600;
+        }
+        .lab-action-btn:not(:disabled):hover {
+            background: #90caf9;
+            color: #000;
+        }
+        .lab-action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Results */
+        .analysis-screen {
+            background: #000;
+            color: #0f0;
+            font-family: 'Courier New', monospace;
+            padding: 10px;
+            border-radius: 4px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            margin-bottom: 15px;
+            border: 1px solid #333;
+            text-align: center;
+        }
+        .meter-box {
+            position: relative;
+            height: 30px;
+            background: #333;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        .meter-scale {
+            display: flex;
+            height: 100%;
+        }
+        .zone { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold; color: rgba(0,0,0,0.6); }
+        .zone.safe { background: linear-gradient(90deg, #4caf50, #8bc34a); } /* Green */
+        .zone.danger { background: linear-gradient(90deg, #ff9800, #f44336); } /* Red */
+        
+        .meter-indicator {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: #fff;
+            left: 50%;
+            transition: left 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 5px #fff;
+            z-index: 2;
+        }
+
+        /* Radar Chart Styles */
+        .radar-view-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            height: 400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .radar-svg {
+            width: 100%;
+            height: 100%;
+            animation: radarSpin 100s linear infinite;
+            transform-origin: center;
+            overflow: visible;
+        }
+        /* Scanner Beam */
+        .radar-scan-beam {
+            transform-origin: 0 0;
+            animation: scanBeam 10s linear infinite;
+        }
+        @keyframes scanBeam {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .radar-view-container:hover .radar-svg {
+            animation-play-state: paused;
+        }
+        @keyframes radarSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        
+        .radar-axis { stroke: rgba(255,255,255,0.1); stroke-width: 1; }
+        .radar-level { fill: none; stroke: rgba(255,255,255,0.05); stroke-width: 1; }
+        .radar-poly { fill: rgba(144, 249, 221, 0.2); stroke: #90f9dd; stroke-width: 2; filter: drop-shadow(0 0 8px #90f9e4); transition: all 1s ease-out; }
+        .radar-point { fill: #fff; cursor: pointer; transition: all 0.3s; }
+        .radar-point:hover { fill: #0f0; r: 8; filter: drop-shadow(0 0 5px #0f0); }
+        .radar-label { fill: #90f9e0; font-size: 12px; font-family: 'Rajdhani', sans-serif; font-weight: bold; text-anchor: middle; dominant-baseline: middle; }
+        
+        .tech-popup {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(10, 25, 47, 0.95);
+            border: 1px solid #90caf9;
+            padding: 15px;
+            border-radius: 8px;
+            color: #fff;
+            text-align: center;
+            display: none;
+            z-index: 20;
+            box-shadow: 0 0 20px rgba(144, 202, 249, 0.4);
+            width: 200px;
+            pointer-events: none;
+        }
+
+        #deploy-inhibitor {
+            background: transparent;
+            border: 1px solid #90caf9;
+            color: #90caf9;
+            padding: 10px 20px;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        #deploy-inhibitor:hover:not(:disabled) {
+            background: rgba(144, 202, 249, 0.1);
+            box-shadow: 0 0 15px rgba(144, 202, 249, 0.3);
+        }
+        #deploy-inhibitor.active {
+            border-color: #90f9dd;
+            color: #90f9dd;
+            background: rgba(144, 249, 221, 0.1);
+        }
+        .key-controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+            margin-bottom: 2rem;
+        }
+        .key-btn {
+            padding: 12px 24px;
+            border: 1px solid #555;
+            border-radius: 8px;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.05);
+            color: #ccc;
+        }
+        .key-btn:hover { transform: translateY(-2px); color: #fff; }
+        .key-btn.bhl-active { background: rgba(105, 240, 174, 0.1); border-color: #69f0ae; color: #69f0ae; box-shadow: 0 0 15px rgba(105, 240, 174, 0.2); }
+        .key-btn.aeckd-active { background: rgba(66, 165, 245, 0.1); border-color: #42a5f5; color: #42a5f5; box-shadow: 0 0 15px rgba(66, 165, 245, 0.2); }
+
+        /* New Pipeline Styles */
+        .pipeline-container {
+            position: relative;
+            max-width: 800px;
+            margin: 3rem auto;
+            padding-left: 60px; /* Space for the timeline line and icons */
+        }
+        .pipeline-container::before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 15px;
+            bottom: 15px;
+            width: 4px;
+            background: #334155;
+            border-radius: 2px;
+        }
+        .pipeline-item {
+            position: relative;
+            margin-bottom: 30px;
+            padding-left: 40px;
+        }
+        .pipeline-icon {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #0f172a;
+            border: 3px solid #42a5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            z-index: 2;
+            transition: all 0.3s ease;
+        }
+        .pipeline-item:hover .pipeline-icon {
+            background: #42a5f5;
+            color: #0f172a;
+            transform: translateY(-50%) scale(1.1);
+            box-shadow: 0 0 15px #42a5f5;
+        }
+        .pipeline-content {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid #334155;
+            padding: 15px 20px;
+            border-radius: 8px;
+            position: relative;
+        }
+        .pipeline-content h4 {
+            margin-top: 0;
+            color: #90caf9;
+            font-family: 'Orbitron', sans-serif;
+        }
+        .pipeline-content p {
+            margin-bottom: 0;
+            color: #ccc;
+        }
+        .pipeline-content strong {
+            color: #90f9dd;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="index.html#research">Back to Research</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <canvas id="sequenceCanvas" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background-color: #0a192f;"></canvas>
+        
+        <section class="research-detail">
+            <h1>MSc Dissertation</h1>
+            <p class="subtitle">Graduate Researcher | Institute of Advanced Research | 2022</p>
+            
+            <img src="images/qs-dissertation.jpg" alt="Quorum Sensing Structure" class="project-img-detail">
+            
+            <div class="content-block">
+                <h3>The Villain: <em>Pseudomonas aeruginosa</em></h3>
+                <p>Imagine a tiny, rod-shaped mastermind that can survive almost anywhere—from soil to hospitals. This is <em>Pseudomonas aeruginosa</em> (PA). It doesn't just attack alone; it uses a "metabolic colloquium" or a cellular "telephone" system called Quorum Sensing (QS) to coordinate a massive strike.</p>
+                <p>When the "opera" starts, the bacteria produce:</p>
+                <ul>
+                    <li><strong>Biofilms:</strong> Protective shields.</li>
+                    <li><strong>Toxins:</strong> Chemical weapons.</li>
+                    <li><strong>Rhamnolipids:</strong> The focus of this study—they help the bacteria spread and destroy host cells.</li>
+                </ul>
+
+                <!-- Feature B: Quorum Sensing Toggle -->
+                <div class="qs-demo-container" id="qs-demo-box">
+                    <div class="qs-monitor-header">
+                        <div class="monitor-label">VIRULENCE MONITOR</div>
+                        <div id="qs-status-text" class="monitor-status danger">ACTIVE</div>
+                    </div>
+                    
+                    <div class="petri-dish toxic" id="petri-dish">
+                        <div class="bacterium"></div>
+                        <div class="bacterium"></div>
+                        <div class="bacterium"></div>
+                    </div>
+            
+                    <div class="qs-control-panel">
+                        <p style="font-size: 0.9rem; color: #aaa; margin-bottom: 15px;">
+                            <em>P. aeruginosa</em> produces <strong>Pyocyanin</strong> during active quorum sensing.
+                        </p>
+                        <button id="qs-toggle-btn" class="qs-btn">Deploy AECKD Inhibitor</button>
+                    </div>
+                </div>
+
+                <h3>The Chemistry of Choice</h3>
+                <p>The RhlR receptor acts as a molecular "Lock." We identified two "Keys" that fit this lock, but with very different results:</p>
+                <ul>
+                    <li><strong>BHL (The Agonist):</strong> The natural signal that triggers virulence and toxicity.</li>
+                    <li><strong>AECKD (The Antagonist):</strong> Our inhibitor that mutes the bacteria, stopping the damage.</li>
+                </ul>
+                <p><strong>The Parallel:</strong> Frame this as "The Chemistry of Choice." Just as we choose which molecule to put in a receptor to cure a disease, we choose which "values" to put in our hearts to transform our lives.</p>
+
+                <!-- 3D Viewer and Button -->
+                <div id="protein-viewer" style="height: 400px; width: 100%; position: relative; margin-top: 1.5rem; background-color: #0f172a;">
+                    <div id="viewer-notification" style="position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.8); padding: 10px 15px; border-radius: 4px; color: white; display: none; font-family: 'Orbitron', sans-serif; z-index: 10; border: 1px solid #333;"></div>
+                </div>
+                <div class="key-controls">
+                    <button class="key-btn" onclick="insertKey('BHL')">🗝️ Insert BHL (Virulence)</button>
+                    <button class="key-btn" onclick="insertKey('AECKD')">🔑 Insert AECKD (Values)</button>
+                </div>
+
+                <h3>Research Workflow: The Funnel of Discovery</h3>
+                <div class="pipeline-container">
+                <div class="pipeline-item">
+                    <div class="pipeline-icon">📚</div>
+                    <div class="pipeline-content">
+                        <h4>1. Phytochemical Library</h4>
+                        <p>The project began by sourcing a vast library of phytochemicals from the IMPPAT database.</p>
+                    </div>
+                </div>
+                <div class="pipeline-item">
+                    <div class="pipeline-icon">📏</div>
+                    <div class="pipeline-content">
+                        <h4>2. Site-based Size Screening</h4>
+                        <p>Compounds were computationally screened and filtered based on their molecular size to ensure a potential fit in the RhlR active site.</p>
+                    </div>
+                </div>
+                <div class="pipeline-item">
+                    <div class="pipeline-icon">💻</div>
+                    <div class="pipeline-content">
+                        <h4>3. Molecular Docking</h4>
+                        <p>High-throughput virtual docking simulated the binding of thousands of compounds to the RhlR receptor, ranking them by affinity.</p>
+                    </div>
+                </div>
+                <div class="pipeline-item">
+                    <div class="pipeline-icon">📈</div>
+                    <div class="pipeline-content">
+                        <h4>4. MM-GBSA</h4>
+                        <p>The binding free energy of top candidates was re-calculated using <strong>MM-GBSA</strong> for higher accuracy.</p>
+                    </div>
+                </div>
+                <div class="pipeline-item">
+                    <div class="pipeline-icon">🧬</div>
+                    <div class="pipeline-content">
+                        <h4>5. MD Simulation</h4>
+                        <p><strong>GROMACS</strong> simulations were run to validate the stability of the protein-ligand complexes over time.</p>
+                    </div>
+                </div>
+                <div class="pipeline-item">
+                    <div class="pipeline-icon">🌿</div>
+                    <div class="pipeline-content">
+                        <h4>6. In-Vitro Extraction of AECKD</h4>
+                        <p>The winning compound, AECKD, was successfully extracted from its natural source, Shatavari (<em>Asparagus racemosus</em>).</p>
+                    </div>
+                </div>
+                <div class="pipeline-item">
+                    <div class="pipeline-icon">🧪</div>
+                    <div class="pipeline-content">
+                        <h4>7. Inhibition Test on <em>P. aeruginosa</em></h4>
+                        <p>The extracted AECKD was tested on live bacterial cultures, confirming its inhibitory effect on virulence factor production.</p>
+                    </div>
+                </div>
+                </div>
+
+                <h3>The Secret Weapon: Ancient Wisdom + Supercomputing</h3>
+                <p>We didn't just guess; we used <em>In-silico</em> (computational) screening of 7,756 natural compounds from Indian medicinal plant databases.</p>
+                <p><strong>The Winner:</strong> A molecule called Aminoethylcysteine ketimine dimer (AECKD).</p>
+                <p><strong>The Stats:</strong> It bound to the receptor with a stable energy (ΔG) of -62.45 kcal/mol.</p>
+
+                <h3>The Proof: From the Lab to the Site</h3>
+                <p>We went to the kitchen and the garden to find this molecule in Shatavari (<em>Asparagus racemosus</em>), garlic, and tomatoes.</p>
+                <p><strong>The Result:</strong> Extracting AECKD from Shatavari successfully cut down rhamnolipid production by 11.55%. We proved that we can "stymie the opera" using natural, non-toxic inhibitors.</p>
+                
+                <!-- Feature C: Veggie Screening Game -->
+                <div class="kitchen-lab-container">
+                    <h3 class="kitchen-title">The Kitchen Lab Experiment</h3>
+                    <p style="color: #ccc; margin-bottom: 1rem;">
+                        <strong>Goal:</strong> Find a natural ingredient that stops the bacteria from communicating.<br>
+                        <small>Follow the steps below to extract phytochemicals and test them against <em>P. aeruginosa</em>.</small>
+                    </p>
+                    
+                    <div class="lab-bench">
+                        <!-- Step 1: Ingredients -->
+                        <div class="lab-section ingredients">
+                            <h4>1. Select Source</h4>
+                            <div class="jars-grid">
+                                <div class="jar-item" onclick="loadSample('cucumber', '#8bc34a', this)">🥒<br>Cucumber</div>
+                                <div class="jar-item" onclick="loadSample('garlic', '#f5f5f5', this)">🧄<br>Garlic</div>
+                                <div class="jar-item" onclick="loadSample('shatavari', '#795548', this)">🌿<br>Shatavari</div>
+                                <div class="jar-item" onclick="loadSample('tomato', '#f44336', this)">🍅<br>Tomato</div>
+                            </div>
+                        </div>
+                
+                        <!-- Step 2: Processing (Visual Test Tube) -->
+                        <div class="lab-section processing">
+                            <h4>2. Process</h4>
+                            <div class="test-tube-rack">
+                                <div id="test-tube" class="test-tube">
+                                    <div id="tube-liquid" class="tube-liquid"></div>
+                                </div>
+                            </div>
+                            <div class="controls">
+                                <button id="btn-mix" class="lab-action-btn" disabled onclick="mixSample()">🌪️ Vortex (Mix)</button>
+                                <button id="btn-spin" class="lab-action-btn" disabled onclick="spinSample()">🔄 Centrifuge (Extract)</button>
+                            </div>
+                        </div>
+                
+                        <!-- Step 3: Result -->
+                        <div class="lab-section results">
+                            <h4>3. Analysis</h4>
+                            <div id="analysis-screen" class="analysis-screen">
+                                <span class="screen-text">Waiting for sample...</span>
+                            </div>
+                            <div id="meter-display" class="meter-box" style="display:none;">
+                                <div class="meter-scale">
+                                    <div class="zone safe">INHIBITOR (Good)</div>
+                                    <div class="zone danger">AGONIST (Bad)</div>
+                                </div>
+                                <div id="meter-indicator" class="meter-indicator"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feature E: Safety Dashboard -->
+                <h3>Safety Profile (AECKD Bio-Radar)</h3>
+                <p style="text-align: center; color: #aaa; margin-bottom: 0;">Hover to pause. Hover points for data.</p>
+                
+                <div class="radar-view-container">
+                    <div class="tech-popup" id="radar-popup">
+                        <h4 id="popup-title" style="margin: 0 0 5px 0; color: #90caf9;"></h4>
+                        <p id="popup-data" style="margin: 0; font-size: 0.9rem;"></p>
+                    </div>
+                    <svg id="radar-svg" class="radar-svg" viewBox="-150 -150 300 300"></svg>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2025 Soham Bhatt</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://3Dmol.csb.pitt.edu/build/3Dmol-min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Feature B: Quorum Sensing Toggle Logic
+            function updateBacteria(isToxic) {
+                $('.bacterium').each(function() {
+                    let x, y, r;
+                    if (isToxic) {
+                        // Swarm Center (Clumping) - Ensure minimum distance so they don't stack
+                        const angle = Math.random() * Math.PI * 2;
+                        const dist = 15 + Math.random() * 40; 
+                        x = Math.cos(angle) * dist;
+                        y = Math.sin(angle) * dist;
+                        r = Math.random() * 360;
+                    } else {
+                        // Disperse (Random)
+                        const angle = Math.random() * Math.PI * 2;
+                        const dist = 50 + Math.random() * 50;
+                        x = Math.cos(angle) * dist;
+                        y = Math.sin(angle) * dist;
+                        r = Math.random() * 360;
+                    }
+                    $(this).css('transform', `translate(${x}px, ${y}px) rotate(${r}deg)`);
+                });
+            }
+            
+            // Initialize
+            updateBacteria(true);
+
+            $('#qs-toggle-btn').click(function() {
+                const dish = $('#petri-dish');
+                const statusText = $('#qs-status-text');
+                const btn = $(this);
+                
+                if (dish.hasClass('toxic')) {
+                    // Deploy Inhibitor
+                    dish.removeClass('toxic');
+                    statusText.text('INHIBITED').removeClass('danger').addClass('safe');
+                    btn.text('Reset Simulation').addClass('active');
+                    updateBacteria(false);
+                } else {
+                    // Reset
+                    dish.addClass('toxic');
+                    statusText.text('ACTIVE').removeClass('safe').addClass('danger');
+                    btn.text('Deploy AECKD Inhibitor').removeClass('active');
+                    updateBacteria(true);
+                }
+            });
+
+            // 3D Viewer Logic (Moved below to prevent blocking if 3Dmol fails)
+           try {
+               let element = $('#protein-viewer');
+               if (typeof $3Dmol !== 'undefined') {
+                   let viewer = $3Dmol.createViewer(element, {
+                       backgroundColor: '#0f151a', // Matching slate background
+                       antialias: true,
+                   });
+
+                   window.insertKey = function(keyType) {
+                       viewer.clear();
+                       $('#viewer-notification').hide();
+                       $('.key-btn').removeClass('bhl-active aeckd-active');
+                       
+                       let pdbFile = (keyType === 'BHL') ? 'images/rhlr_sc-BHL.pdb' : 'images/rhlr_sc-AECKD.pdb';
+                       
+                       $.get(pdbFile, function(data) {
+                           viewer.addModel(data, 'pdb');
+                           let ligandSel = {hetflag: true};
+                           
+                           if (keyType === 'BHL') {
+                               // BHL State: Green Glow, Active
+                               viewer.setStyle({}, { cartoon: { color: '#69f0ae' } }); // Glowing Green
+                               viewer.addSurface($3Dmol.SurfaceType.VDW, {opacity:0.8, color:'yellow'}, ligandSel);
+                               viewer.setStyle(ligandSel, { stick: { colorscheme: 'greenCarbon', radius: 0.4 } });
+                               
+                               $('#viewer-notification').html('⚠️ Virulence Signal Active').css({'color': '#69f0ae', 'border-color': '#69f0ae'}).fadeIn();
+                               $('.key-btn:contains("BHL")').addClass('bhl-active');
+                           } else {
+                               // AECKD State: Sathya Sai Blue (Calm)
+                               let calmBlue = '#42a5f5';
+                               viewer.setStyle({}, { cartoon: { color: calmBlue } }); // Solid Calm Blue
+                               viewer.addSurface($3Dmol.SurfaceType.VDW, {opacity:0.8, color:'red'}, ligandSel);
+                               viewer.setStyle(ligandSel, { stick: { colorscheme: 'cyanCarbon', radius: 0.4 } });
+                               
+                               $('#viewer-notification').html('🛡️ Signal Intercepted: Muted').css({'color': calmBlue, 'border-color': calmBlue}).fadeIn();
+                               $('.key-btn:contains("AECKD")').addClass('aeckd-active');
+                           }
+                           
+                           viewer.zoomTo();
+                           viewer.render();
+                       }).fail(function() {
+                           console.error("Failed to load " + pdbFile);
+                           $('#viewer-notification').html('Error: PDB File Not Found').css({'color': 'red', 'border-color': 'red'}).fadeIn();
+                       });
+                   };
+
+                   // Initial Load
+                   insertKey('BHL');
+               }
+           } catch (e) {
+               console.error("3DMol initialization failed:", e);
+               $('#protein-viewer').html('<p style="color:#aaa; text-align:center; padding-top:180px;">3D Viewer Failed to Load</p>');
+           }
+
+            // Feature C: Kitchen Chemist Logic
+            let currentSample = null;
+            
+            window.loadSample = function(type, color, element) {
+                currentSample = type;
+                
+                // UI Updates
+                $('.jar-item').removeClass('selected');
+                $(element).addClass('selected');
+
+                // Reset Lab
+                $('#tube-liquid').css({'height': '0%', 'background-color': 'transparent'});
+                $('#btn-mix').prop('disabled', true).text('🌪️ Vortex (Mix)');
+                $('#btn-spin').prop('disabled', true).text('🔄 Centrifuge (Extract)');
+                $('#analysis-screen').html('<span class="screen-text">Sample Loaded.<br>Ready to Process.</span>').css('color', '#0f0');
+                $('#meter-display').hide();
+                $('#meter-indicator').css('left', '50%');
+
+                // Fill Tube Animation
+                setTimeout(() => {
+                    $('#tube-liquid').css({'height': '60%', 'background-color': color});
+                    $('#btn-mix').prop('disabled', false);
+                    $('#analysis-screen').html('<span class="screen-text">Step 1 Complete.<br>Click Vortex to mix.</span>');
+                }, 100);
+            };
+
+            window.mixSample = function() {
+                const btn = $('#btn-mix');
+                const tube = $('#test-tube');
+                
+                btn.prop('disabled', true).text('Mixing...');
+                tube.addClass('shaking');
+                
+                setTimeout(() => {
+                    tube.removeClass('shaking');
+                    btn.text('Mixed ✓');
+                    $('#btn-spin').prop('disabled', false);
+                    $('#analysis-screen').html('<span class="screen-text">Mixture Homogenized.<br>Centrifuge to extract.</span>');
+                    $('#tube-liquid').css('opacity', '0.8');
+                }, 1000);
+            };
+
+            window.spinSample = function() {
+                const btn = $('#btn-spin');
+                btn.prop('disabled', true).text('Spinning...');
+                
+                $('#analysis-screen').html('<span class="screen-text" style="color:yellow">EXTRACTING COMPOUNDS...</span>');
+                
+                setTimeout(() => {
+                    btn.text('Extracted ✓');
+                    analyzeResult();
+                }, 1500);
+            };
+
+            function analyzeResult() {
+                $('#meter-display').slideDown();
+                const screen = $('#analysis-screen');
+                const indicator = $('#meter-indicator');
+                
+                let msg = "";
+                let color = "";
+                let position = "50%";
+
+                if (currentSample === 'shatavari') {
+                    position = "20%"; // Left (Safe/Inhibitor)
+                    msg = "SUCCESS: INHIBITOR FOUND!<br>Rhamnolipids Reduced by 11.55%";
+                    color = "#4caf50"; // Green
+                } else if (currentSample === 'garlic' || currentSample === 'cucumber') {
+                    position = "85%"; // Right (Danger/Agonist)
+                    msg = "WARNING: AGONIST DETECTED.<br>Virulence Increased!";
+                    color = "#f44336"; // Red
+                } else {
+                    position = "50%";
+                    msg = "RESULT: NEUTRAL.<br>No significant effect.";
+                    color = "#ccc";
+                }
+                
+                indicator.css('left', position);
+                screen.html(`<span style="color:${color}; font-weight:bold;">${msg}</span>`);
+            }
+
+            // Feature E: Radar Chart Logic
+            const radarData = [
+                { label: "Absorption", value: 100, info: "99.9% Intestinal Absorption<br>(High Bioavailability)" },
+                { label: "Distribution", value: 40, info: "Log BB: -0.8<br>(No BBB Permeability - Safe)" },
+                { label: "Metabolism", value: 85, info: "Non-Inhibitor of CYP450<br>(Clean Metabolic Profile)" },
+                { label: "Excretion", value: 70, info: "Total Clearance:<br>0.22 log ml/min/kg" },
+                { label: "Safety", value: 95, info: "AMES Toxicity: Negative<br>(Non-Carcinogenic)" }
+            ];
+
+            const svg = document.getElementById('radar-svg');
+            const numPoints = radarData.length;
+            const radius = 100;
+            let svgContent = "";
+            let polyPoints = "";
+            let zeroPoints = ""; // For animation start
+
+            // 0. Scanner Gradient
+            svgContent += `<defs>
+                <linearGradient id="scan-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:rgba(144, 202, 249, 0.8)" />
+                    <stop offset="100%" style="stop-color:rgba(144, 202, 249, 0)" />
+                </linearGradient>
+            </defs>`;
+            
+            // 1. Grid Levels
+            [0.2, 0.4, 0.6, 0.8, 1].forEach(scale => {
+                let levelPoints = "";
+                for (let i = 0; i < numPoints; i++) {
+                    const angle = (Math.PI * 2 * i) / numPoints - Math.PI / 2;
+                    const x = Math.cos(angle) * radius * scale;
+                    const y = Math.sin(angle) * radius * scale;
+                    levelPoints += `${x},${y} `;
+                }
+                svgContent += `<polygon points="${levelPoints}" class="radar-level"/>`;
+            });
+
+            // 2. Axes & Labels
+            radarData.forEach((d, i) => {
+                const angle = (Math.PI * 2 * i) / numPoints - Math.PI / 2;
+                const x = Math.cos(angle) * radius;
+                const y = Math.sin(angle) * radius;
+                const labelX = Math.cos(angle) * (radius + 25);
+                const labelY = Math.sin(angle) * (radius + 25);
+                
+                svgContent += `<line x1="0" y1="0" x2="${x}" y2="${y}" class="radar-axis"/>`;
+                
+                const deg = (angle * 180 / Math.PI) + 90;
+                svgContent += `<text x="${labelX}" y="${labelY}" class="radar-label" transform="rotate(${deg}, ${labelX}, ${labelY})">${d.label}</text>`;
+
+                const dataX = Math.cos(angle) * radius * (d.value / 100);
+                const dataY = Math.sin(angle) * radius * (d.value / 100);
+                polyPoints += `${dataX},${dataY} `;
+                zeroPoints += `0,0 `;
+            });
+
+            // Polygon (Starts at 0,0 for animation)
+            svgContent += `<polygon id="radar-poly-shape" points="${zeroPoints}" class="radar-poly"/>`;
+            
+            // Scanner Beam
+            svgContent += `<line x1="0" y1="0" x2="0" y2="-${radius}" stroke="url(#scan-grad)" stroke-width="3" class="radar-scan-beam" />`;
+
+            svg.innerHTML = svgContent;
+
+            // Trigger Expansion Animation
+            setTimeout(() => {
+                document.getElementById('radar-poly-shape').setAttribute('points', polyPoints);
+            }, 500);
+
+            // 3. Interactive Points
+            let typeInterval;
+
+            radarData.forEach((d, i) => {
+                const angle = (Math.PI * 2 * i) / numPoints - Math.PI / 2;
+                const dataX = Math.cos(angle) * radius * (d.value / 100);
+                const dataY = Math.sin(angle) * radius * (d.value / 100);
+
+                const point = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                point.setAttribute("cx", dataX);
+                point.setAttribute("cy", dataY);
+                point.setAttribute("r", 5);
+                point.setAttribute("class", "radar-point");
+                
+                point.addEventListener("mouseenter", () => {
+                    $('#popup-title').text(d.label);
+                    
+                    // Typing Effect
+                    const text = d.info.replace(/<br>/g, '\n');
+                    const popupData = $('#popup-data');
+                    popupData.html('');
+                    $('#radar-popup').fadeIn(200);
+                    
+                    let charIndex = 0;
+                    clearInterval(typeInterval);
+                    typeInterval = setInterval(() => {
+                        if (charIndex < text.length) {
+                            const char = text.charAt(charIndex) === '\n' ? '<br>' : text.charAt(charIndex);
+                            popupData.html(popupData.html() + char);
+                            charIndex++;
+                        } else {
+                            clearInterval(typeInterval);
+                        }
+                    }, 20);
+                });
+                point.addEventListener("mouseleave", () => {
+                    clearInterval(typeInterval);
+                    $('#radar-popup').fadeOut(200);
+                });
+                
+                svg.appendChild(point);
+            });
+        });
+    </script>
+    <script src="matrix_bg.js"></script>
+</body>
+</html>     // 3. Interactive Points
+            let typeInterval;
+
+            radarData.forEach((d, i) => {
+                const angle = (Math.PI * 2 * i) / numPoints - Math.PI / 2;
+                const dataX = Math.cos(angle) * radius * (d.value / 100);
+                const dataY = Math.sin(angle) * radius * (d.value / 100);
+
+                const point = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                point.setAttribute("cx", dataX);
+                point.setAttribute("cy", dataY);
+                point.setAttribute("r", 5);
+                point.setAttribute("class", "radar-point");
+                
+                point.addEventListener("mouseenter", () => {
+                    $('#popup-title').text(d.label);
+                    
+                    // Typing Effect
+                    const text = d.info.replace(/<br>/g, '\n');
+                    const popupData = $('#popup-data');
+                    popupData.html('');
+                    $('#radar-popup').fadeIn(200);
+                    
+                    let charIndex = 0;
+                    clearInterval(typeInterval);
+                    typeInterval = setInterval(() => {
+                        if (charIndex < text.length) {
+                            const char = text.charAt(charIndex) === '\n' ? '<br>' : text.charAt(charIndex);
+                            popupData.html(popupData.html() + char);
+                            charIndex++;
+                        } else {
+                            clearInterval(typeInterval);
+                        }
+                    }, 20);
+                });
+                point.addEventListener("mouseleave", () => {
+                    clearInterval(typeInterval);
+                    $('#radar-popup').fadeOut(200);
+                });
+                
+                svg.appendChild(point);
+            });
+        });
+    </script>
+    <script src="matrix_bg.js"></script>
+</body>
+</html>
